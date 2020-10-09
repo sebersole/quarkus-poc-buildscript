@@ -14,7 +14,9 @@ import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
 
 import org.gradle.api.GradleException;
+import org.gradle.api.NamedDomainObjectSet;
 import org.gradle.api.Plugin;
+import org.gradle.api.PolymorphicDomainObjectContainer;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.ResolvedArtifact;
@@ -45,8 +47,48 @@ public class QuarkusPlugin implements Plugin<Project> {
 	public void apply(Project project) {
 		dsl = project.getExtensions().create( "quarkus", QuarkusSpec.class, project );
 
+		discoverAvailableExtensions( project );
+
 		project.getTasks().create( ShowQuarkusExtensionsTask.DSL_NAME, ShowQuarkusExtensionsTask.class );
 
+		project.afterEvaluate( p -> resolveExtensions() );
+	}
+
+	private void resolveExtensions() {
+		final PolymorphicDomainObjectContainer<ExtensionSpec> extensionSpecContainer = dsl.getExtensionSpecContainer();
+		final HashSet<ModuleVersionIdentifier> unconfiguredExtensions = new HashSet<>( availableExtensions.keySet() );
+		availableExtensions.forEach(
+				(moduleVersionIdentifier, availableExtension) -> {
+					final NamedDomainObjectSet<? extends ExtensionSpec> explicitConfigurationsByType = extensionSpecContainer.withType( availableExtension.getExtensionClass() );
+					if ( explicitConfigurationsByType.isEmpty() ) {
+						final ExtensionSpec extensionSpec = extensionSpecContainer.create(
+								moduleVersionIdentifier.getArtifactName(),
+								availableExtension.getExtensionClass()
+						);
+						extensionSpec.setRuntimeArtifact( moduleVersionIdentifier.groupArtifactVersion() );
+						unconfiguredExtensions.remove( moduleVersionIdentifier );
+					}
+					else {
+						explicitConfigurationsByType.forEach(
+								extensionSpec -> unconfiguredExtensions.remove( extensionSpec.getRuntimeArtifact().get() )
+						);
+					}
+				}
+		);
+
+		unconfiguredExtensions.forEach(
+				moduleVersionIdentifier -> {
+					final AvailableExtension<?> availableExtension = availableExtensions.get( moduleVersionIdentifier );
+					final ExtensionSpec extensionSpec = extensionSpecContainer.create(
+							moduleVersionIdentifier.getArtifactName(),
+							availableExtension.getExtensionClass()
+					);
+					extensionSpec.setRuntimeArtifact( moduleVersionIdentifier.groupArtifactVersion() );
+				}
+		);
+	}
+
+	private void discoverAvailableExtensions(Project project) {
 		// we will do some validation after using these...
 		final Set<String> knownDeploymentArtifactNames = new HashSet<>();
 		final Map<ModuleVersionIdentifier, ResolvedArtifact> allResolvedArtifacts = new TreeMap<>( StrictModuleIdentifierComparator.INSTANCE );
@@ -68,7 +110,9 @@ public class QuarkusPlugin implements Plugin<Project> {
 					final Properties extensionsProps = extractExtensionProperties( resolvedArtifact );
 					if ( extensionsProps != null ) {
 						// we have an extension (at least we found an extension prop file)
-						availableExtensions.put( identifier, AvailableExtension.from( resolvedArtifact, project ) );
+						final AvailableExtension<ExtensionSpec> availableExtension = AvailableExtension.from( resolvedArtifact, project );
+						availableExtension.contribute( dsl, project );
+						availableExtensions.put( identifier, availableExtension );
 
 						final String correspondingDeploymentArtifact = extensionsProps.getProperty( DEPLOYMENT_ARTIFACT_KEY );
 						if ( correspondingDeploymentArtifact != null ) {

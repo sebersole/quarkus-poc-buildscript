@@ -6,6 +6,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.Locale;
 
+import org.gradle.api.GradleException;
 import org.gradle.api.artifacts.Dependency;
 
 /**
@@ -28,6 +29,28 @@ public class Helper {
 
 	public static final String JANDEX_FILE_NAME = "jandex.idx";
 	public static final String JANDEX_INDEX_FILE_PATH = META_INF + JANDEX_FILE_NAME;
+
+	public static ModuleVersionIdentifier moduleVersionIdentifier(String notation) {
+		final String[] splits = notation.split( ":" );
+		if ( splits.length < 2 ) {
+			throw new GradleException( "Too many `:` in dependency notation : " + notation );
+		}
+		if ( splits.length > 3 ) {
+			Logging.LOGGER.debug( "Dependency notation contained more `:` separators than expected : {}", notation );
+		}
+
+		final String group = splits[0];
+		final String artifact = splits[1];
+		final String version;
+		if ( splits.length >= 3 ) {
+			version = splits[2];
+		}
+		else {
+			version = null;
+		}
+
+		return new StandardModuleVersionIdentifier( group, artifact, version );
+	}
 
 	public static String groupArtifactVersion(String group, String artifact, String version) {
 		return String.format(

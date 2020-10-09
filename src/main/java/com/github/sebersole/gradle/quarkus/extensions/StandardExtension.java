@@ -20,6 +20,11 @@ public class StandardExtension implements AvailableExtension<StandardExtensionSp
 	}
 
 	@Override
+	public Class<StandardExtensionSpec> getExtensionClass() {
+		return StandardExtensionSpec.class;
+	}
+
+	@Override
 	public void contribute(QuarkusSpec quarkusSpec, Project gradleProject) {
 		// nothing to contribute - its NamedDomainObjectFactory has already been registered by the plugin
 	}

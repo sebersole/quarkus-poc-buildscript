@@ -18,15 +18,26 @@ public class ShowQuarkusExtensionsTask extends DefaultTask {
 
 
 		project.getLogger().lifecycle( "###########################################################" );
-		project.getLogger().lifecycle( "Extensions..." );
+		project.getLogger().lifecycle( "Available Extensions ({})", quarkusPlugin.getAvailableExtensions().size() );
 		project.getLogger().lifecycle( "###########################################################" );
 
 		project.getLogger().lifecycle( "  > Extension artifacts" );
 		quarkusPlugin.getAvailableExtensions().forEach(
 				(moduleVersionIdentifier, extension) -> {
 					project.getLogger().lifecycle( "    > {}", moduleVersionIdentifier.groupArtifactVersion() );
-					project.getLogger().lifecycle( "      > {}", extension.getClass().getName() );
+					project.getLogger().lifecycle( "      > {}", extension.getExtensionClass().getName() );
 				}
 		);
+
+		project.getLogger().lifecycle( "###########################################################" );
+		project.getLogger().lifecycle( "ExtensionSpecs ({})", quarkusPlugin.getDsl().getExtensionSpecContainer().size() );
+		project.getLogger().lifecycle( "###########################################################" );
+
+		quarkusPlugin.getDsl().getExtensionSpecContainer().forEach(
+				extensionSpec -> {
+					project.getLogger().lifecycle( "    > {}", extensionSpec.getRuntimeArtifact().get() );
+				}
+		);
+
 	}
 }

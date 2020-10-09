@@ -21,6 +21,11 @@ public class HibernateOrmExtension implements AvailableExtension<HibernateOrmExt
 	}
 
 	@Override
+	public Class<HibernateOrmExtensionSpec> getExtensionClass() {
+		return HibernateOrmExtensionSpec.class;
+	}
+
+	@Override
 	public void contribute(QuarkusSpec quarkusSpec, Project gradleProject) {
 		quarkusSpec.getExtensionSpecContainer().registerFactory(
 				HibernateOrmExtensionSpec.class,
