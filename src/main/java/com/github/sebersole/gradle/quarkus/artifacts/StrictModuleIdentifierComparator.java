@@ -1,4 +1,4 @@
-package com.github.sebersole.gradle.quarkus;
+package com.github.sebersole.gradle.quarkus.artifacts;
 
 import java.util.Comparator;
 import java.util.Objects;
@@ -15,11 +15,6 @@ public class StrictModuleIdentifierComparator implements Comparator<ModuleIdenti
 
 	@Override
 	public int compare(ModuleIdentifier o1, ModuleIdentifier o2) {
-		final int groupComparison = Objects.compare( o1.getGroupName(), o2.getGroupName(), String::compareTo );
-		if ( groupComparison != 0 ) {
-			return groupComparison;
-		}
-
-		return Objects.compare( o1.getArtifactName(), o2.getArtifactName(), String::compareTo );
+		return Objects.compare( o1.groupArtifact(), o2.groupArtifact(), String::compareTo );
 	}
 }

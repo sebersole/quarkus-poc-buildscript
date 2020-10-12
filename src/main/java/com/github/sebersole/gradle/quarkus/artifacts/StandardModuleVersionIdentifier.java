@@ -1,10 +1,12 @@
-package com.github.sebersole.gradle.quarkus;
+package com.github.sebersole.gradle.quarkus.artifacts;
 
 import java.util.Locale;
 import java.util.Objects;
 
 import org.gradle.api.artifacts.ResolvedArtifact;
 import org.gradle.api.artifacts.ResolvedModuleVersion;
+
+import com.github.sebersole.gradle.quarkus.Helper;
 
 /**
  * Basic implementation of the ModuleIdentifier contract
@@ -18,6 +20,12 @@ public class StandardModuleVersionIdentifier implements ModuleVersionIdentifier 
 		this.groupName = groupName;
 		this.artifactName = artifactName;
 		this.version = version;
+	}
+
+	public StandardModuleVersionIdentifier(String groupName, String artifactName) {
+		this.groupName = groupName;
+		this.artifactName = artifactName;
+		this.version = "PLATFORM";
 	}
 
 	public StandardModuleVersionIdentifier(ResolvedArtifact gradleResolvedArtifact) {
@@ -66,12 +74,6 @@ public class StandardModuleVersionIdentifier implements ModuleVersionIdentifier 
 
 	@Override
 	public String toString() {
-		return String.format(
-				Locale.ROOT,
-				"%s:%s:%s",
-				groupName,
-				artifactName,
-				version
-		);
+		return Helper.groupArtifactVersion( groupName, artifactName, version );
 	}
 }

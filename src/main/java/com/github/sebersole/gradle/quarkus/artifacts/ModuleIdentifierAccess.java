@@ -1,4 +1,4 @@
-package com.github.sebersole.gradle.quarkus;
+package com.github.sebersole.gradle.quarkus.artifacts;
 
 /**
  * Access to a ModuleIdentifier

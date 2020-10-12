@@ -1,11 +1,14 @@
-
 buildscript {
     repositories {
         mavenCentral()
     }
     dependencies {
-        // Quarkus extensions
+        // Quarkus platform
         classpath enforcedPlatform( 'io.quarkus:quarkus-bom:1.7.1.Final' )
+
+        // would be nicer to name the deployment artifact and have a way to map
+        // that to the corresponding runtime artifact.  however, the way this works
+        // in Quarkus at the moment is the other way around.
         //classpath 'io.quarkus:quarkus-hibernate-orm-deployment'
         classpath 'io.quarkus:quarkus-hibernate-orm'
     }
@@ -16,3 +19,17 @@ plugins {
     id 'sebersole.quarkus.plugin-poc-buildscript'
 }
 
+repositories {
+    mavenCentral()
+}
+
+quarkus {
+    hibernateOrm {
+        databaseKind = 'derby'
+    }
+    jpa {
+        persistenceUnits {
+            // todo : add some tests
+        }
+    }
+}
