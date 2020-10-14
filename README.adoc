@@ -1,0 +1,38 @@
+```
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath( enforcedPlatform( "io.quarkus:quarkus-bom:1.7.1.Final" ) )
+
+        // would be nicer to name the deployment artifact and have a way to map
+        // that to the corresponding runtime artifact.  however, the way this works
+        // in Quarkus at the moment is the other way around.
+        //classpath 'io.quarkus:quarkus-hibernate-orm-deployment'
+        classpath( "io.quarkus:quarkus-hibernate-orm" )
+    }
+}
+
+
+plugins {
+    ...
+    id( "sebersole.quarkus.plugin-poc-buildscript" ) version "1.0-SNAPSHOT"
+}
+
+quarkus {
+    dataSources {
+        setDatabaseKind( "derby" )
+    }
+    jpa {
+        persistenceUnits {
+            create( "pu-abc" ) {
+                // implicitly picks up the project's sources, but
+                // other dependencies can be named here as well.
+                // e.g.
+                include 'com.acme:our-data-model:x.y.z'
+            }
+        }
+    }
+}
+```

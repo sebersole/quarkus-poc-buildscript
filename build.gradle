@@ -10,14 +10,14 @@ plugins {
 }
 
 group 'com.github.sebersole.quarkus'
-version '1.0-SNAPSHOT'
+version '0.9'
 
 repositories {
     mavenCentral()
 }
 
 ext {
-    pluginId = 'sebersole.quarkus.plugin-poc-buildscript'
+    pluginId = 'sebersole.quarkus.plugin-poc'
 
     // this would come from the build when integrated upstream
     quarkusVersion = '1.7.1.Final'
@@ -74,6 +74,10 @@ pluginBundle {
             displayName = pluginDescription
         }
     }
+}
+
+javadoc {
+    options.addStringOption( 'Xdoclint:none', '-quiet' )
 }
 
 tasks.test {
