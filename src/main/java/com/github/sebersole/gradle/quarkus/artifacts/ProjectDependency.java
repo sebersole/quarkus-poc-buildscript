@@ -13,25 +13,18 @@ import com.github.sebersole.gradle.quarkus.jandex.ProjectIndexCreator;
  */
 public class ProjectDependency implements ResolvedDependency {
 	private final ModuleVersionIdentifier identifier;
-	private final ResolvedArtifact artifact;
 
 	private final IndexCreator indexCreator;
 
-	public ProjectDependency(ModuleVersionIdentifier identifier, ResolvedArtifact artifact, ProjectInfo referencedProject) {
+	public ProjectDependency(ModuleVersionIdentifier identifier, ProjectInfo referencedProjectInfo) {
 		this.identifier = identifier;
-		this.artifact = artifact;
 
-		indexCreator = new ProjectIndexCreator( referencedProject.getMainSourceSet() );
+		indexCreator = new ProjectIndexCreator( referencedProjectInfo.getMainSourceSet() );
 	}
 
 	@Override
 	public ModuleVersionIdentifier getIdentifier() {
 		return identifier;
-	}
-
-	@Override
-	public ResolvedArtifact getArtifact() {
-		return artifact;
 	}
 
 	@Override

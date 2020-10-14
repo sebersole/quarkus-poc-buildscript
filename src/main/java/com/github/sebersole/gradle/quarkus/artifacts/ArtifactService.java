@@ -14,12 +14,13 @@ import org.gradle.api.artifacts.ResolvedConfiguration;
 import com.github.sebersole.gradle.quarkus.Helper;
 import com.github.sebersole.gradle.quarkus.Logging;
 import com.github.sebersole.gradle.quarkus.ProjectInfo;
-import com.github.sebersole.gradle.quarkus.Services;
+import com.github.sebersole.gradle.quarkus.service.Service;
+import com.github.sebersole.gradle.quarkus.service.Services;
 
 /**
  * Cache of artifacts
  */
-public class ArtifactService {
+public class ArtifactService implements Service<ArtifactService> {
 	public static final String QUARKUS_PLATFORMS = "quarkusPlatforms";
 	public static final String QUARKUS_RUNTIME_DEPS = "quarkusRuntime";
 	public static final String QUARKUS_DEPLOYMENT_DEPS = "quarkusDeployment";
@@ -76,8 +77,21 @@ public class ArtifactService {
 		);
 	}
 
-	public void prepareForUse() {
-		Logging.LOGGER.trace( "ArtifactService#prepareForUse" );
+	public void afterProjectEvaluation() {
+		Logging.LOGGER.trace( "ArtifactService#afterProjectEvaluation" );
+
+		if ( services.getBuildDetails().getMainProjectMainSourceSet() != null ) {
+			// add the main project as a resolved-dependency...
+			final ProjectInfo mainProjectInfo = services.getProjectService().getMainProjectInfo();
+			resolveDependency(
+					mainProjectInfo.getModuleVersionIdentifier(),
+					identifier -> new ProjectDependency( identifier, mainProjectInfo )
+			);
+		}
+	}
+
+	public void afterTaskGraphReady() {
+		Logging.LOGGER.trace( "ArtifactService#afterTaskGraphReady" );
 	}
 
 	private ResolvedDependency makeDependencyReference(ModuleVersionIdentifier identifier, ResolvedArtifact resolvedArtifact) {
@@ -99,9 +113,10 @@ public class ArtifactService {
 
 		if ( artifactBase.isDirectory() ) {
 			// we assume this is a project
+
 			final ProjectInfo projectInfo = services.getProjectService().getProjectInfo( identifier );
 			assert projectInfo != null;
-			return new ProjectDependency( identifier, resolvedArtifact, projectInfo );
+			return new ProjectDependency( identifier, projectInfo );
 		}
 
 		return new ExternalDependency( identifier, resolvedArtifact );
@@ -156,4 +171,8 @@ public class ArtifactService {
 		return resolvedDependency;
 	}
 
+	@Override
+	public Class<ArtifactService> getRole() {
+		return ArtifactService.class;
+	}
 }

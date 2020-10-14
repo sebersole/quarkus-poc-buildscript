@@ -5,18 +5,14 @@ import javax.inject.Inject;
 import org.gradle.api.artifacts.Configuration;
 
 import com.github.sebersole.gradle.quarkus.Helper;
-import com.github.sebersole.gradle.quarkus.Services;
-import com.github.sebersole.gradle.quarkus.artifacts.ArtifactService;
 import com.github.sebersole.gradle.quarkus.artifacts.ModuleVersionIdentifier;
-import com.github.sebersole.gradle.quarkus.artifacts.ResolvedDependency;
-import com.github.sebersole.gradle.quarkus.artifacts.StandardModuleVersionIdentifier;
+import com.github.sebersole.gradle.quarkus.datasource.DataSourceContainerSpec;
 import com.github.sebersole.gradle.quarkus.extension.AbstractQuarkusExtension;
 import com.github.sebersole.gradle.quarkus.extension.ExtensionContributionState;
 import com.github.sebersole.gradle.quarkus.extension.ExtensionDescriptorCreationState;
 import com.github.sebersole.gradle.quarkus.extension.ExtensionResolutionState;
-import com.github.sebersole.gradle.quarkus.extension.ExtensionService;
-import com.github.sebersole.gradle.quarkus.extension.QuarkusExtension;
 import com.github.sebersole.gradle.quarkus.extension.ResolvedExtension;
+import com.github.sebersole.gradle.quarkus.jpa.JpaService;
 import com.github.sebersole.gradle.quarkus.jpa.JpaSpec;
 
 /**
@@ -24,8 +20,6 @@ import com.github.sebersole.gradle.quarkus.jpa.JpaSpec;
  */
 public class HibernateOrmExtension extends AbstractQuarkusExtension {
 	public static final String ARTIFACT_NAME = Helper.QUARKUS + "-hibernate-orm";
-	public static final String DB_KIND_PROP_KEY = "quarkus.datasource.db-kind";
-	public static final String JDBC_URL_PROP_KEY = "quarkus.datasource.jdbc.url";
 
 	public static final String DSL_NAME = "hibernateOrm";
 
@@ -41,16 +35,16 @@ public class HibernateOrmExtension extends AbstractQuarkusExtension {
 
 	@Override
 	public void contribute(ExtensionContributionState contributionState) {
-		contributionState.getQuarkusDsl().getExtensions().create( DSL_NAME, HibernateOrmSpec.class, contributionState );
-		contributionState.getQuarkusDsl().getExtensions().create( JpaSpec.DSL_NAME, JpaSpec.class, contributionState );
+		JpaService.maybeRegister( contributionState );
+		final DataSourceContainerSpec dataSourceContainerSpec = DataSourceContainerSpec.maybeRegister( contributionState );
+
+		contributionState.getQuarkusDsl().getExtensions().create( DSL_NAME, HibernateOrmSpec.class, contributionState, dataSourceContainerSpec );
 	}
 
 	@Override
 	public ResolvedExtension resolve(ExtensionResolutionState resolutionState) {
-		final HibernateOrmSpec config = resolutionState.getQuarkusDsl().getExtensions().getByType( HibernateOrmSpec.class );
-		final DatabaseKind databaseKind = config.getDatabaseKind().get();
-
-		applyDatabaseKind( databaseKind, resolutionState );
+		final DataSourceContainerSpec dataSourceConfig = resolutionState.getQuarkusDsl().getExtensions().getByType( DataSourceContainerSpec.class );
+		dataSourceConfig.applyDatabaseKinds( resolutionState );
 
 		final Configuration runtimeDependencies = makeRuntimeDependencies( resolutionState );
 		final Configuration deploymentDependencies = makeDeploymentDependencies( resolutionState );
@@ -79,28 +73,6 @@ public class HibernateOrmExtension extends AbstractQuarkusExtension {
 				return deploymentDependencies;
 			}
 		};
-	}
-
-	private void applyDatabaseKind(DatabaseKind databaseKind, ExtensionResolutionState resolutionState) {
-		final ModuleVersionIdentifier dbKindExtensionId = new StandardModuleVersionIdentifier(
-				databaseKind.getGroupName(),
-				databaseKind.getArtifactName(),
-				// assume the same version
-				getRuntimeDependency().getVersion()
-		);
-
-		final Services services = resolutionState.getServices();
-		final ArtifactService artifactService = services.getArtifactService();
-		final ExtensionService extensionService = services.getExtensionService();
-
-		extensionService.locateResolvedExtension(
-				dbKindExtensionId,
-				identifier -> {
-					final ResolvedDependency dbKindDependency = artifactService.resolveDependency( dbKindExtensionId );
-					final QuarkusExtension dbKindExtension = extensionService.registerAvailableExtension( dbKindDependency );
-					return dbKindExtension.resolve( resolutionState );
-				}
-		);
 	}
 
 }

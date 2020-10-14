@@ -11,7 +11,9 @@ import java.util.function.Supplier;
 import org.gradle.api.GradleException;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.Dependency;
+import org.gradle.api.artifacts.ResolvedArtifact;
 import org.gradle.api.artifacts.ResolvedDependency;
+import org.gradle.api.artifacts.ResolvedModuleVersion;
 
 import com.github.sebersole.gradle.quarkus.artifacts.ModuleVersionIdentifier;
 import com.github.sebersole.gradle.quarkus.artifacts.StandardModuleVersionIdentifier;
@@ -21,6 +23,7 @@ import com.github.sebersole.gradle.quarkus.artifacts.StandardModuleVersionIdenti
  */
 public class Helper {
 	public static final String QUARKUS = "quarkus";
+	public static final String QUARKUS_BUILD_STEPS = "quarkus build steps";
 
 	public static final String REPORT_BANNER_LINE = "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~";
 
@@ -42,6 +45,18 @@ public class Helper {
 				dependency.getGroup(),
 				dependency.getName(),
 				dependency.getVersion()
+		);
+	}
+
+	public static ModuleVersionIdentifier moduleVersionIdentifier(ResolvedArtifact artifact) {
+		return moduleVersionIdentifier( artifact.getModuleVersion() );
+	}
+
+	public static ModuleVersionIdentifier moduleVersionIdentifier(ResolvedModuleVersion moduleVersion) {
+		return new StandardModuleVersionIdentifier(
+				moduleVersion.getId().getGroup(),
+				moduleVersion.getId().getName(),
+				moduleVersion.getId().getVersion()
 		);
 	}
 

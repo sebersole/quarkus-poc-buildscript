@@ -1,18 +1,15 @@
 package com.github.sebersole.gradle.quarkus;
 
 import java.io.File;
-import java.util.Set;
 
 import org.gradle.api.DefaultTask;
 import org.gradle.api.Project;
-import org.gradle.api.Task;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.Dependency;
-import org.gradle.api.plugins.PluginCollection;
 import org.gradle.api.tasks.TaskAction;
 
-import com.github.sebersole.gradle.quarkus.extension.ExtensionService;
 import com.github.sebersole.gradle.quarkus.extension.ResolvedExtension;
+import com.github.sebersole.gradle.quarkus.service.Services;
 
 import static com.github.sebersole.gradle.quarkus.Helper.QUARKUS;
 import static com.github.sebersole.gradle.quarkus.Helper.REPORT_BANNER_LINE;

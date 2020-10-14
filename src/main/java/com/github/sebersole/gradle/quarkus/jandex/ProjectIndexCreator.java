@@ -6,7 +6,7 @@ import org.jboss.jandex.Index;
 import org.jboss.jandex.Indexer;
 
 /**
- * IndexManager for a local project
+ * IndexCreator for a local project
  */
 public class ProjectIndexCreator implements IndexCreator {
 	private final SourceSet mainSourceSet;
@@ -20,7 +20,6 @@ public class ProjectIndexCreator implements IndexCreator {
 
 	@Override
 	public Index createIndex() {
-		// first, see
 		final Indexer indexer = new Indexer();
 		mainSourceSet.getOutput().getClassesDirs().forEach(
 				file -> JandexHelper.applyDirectory( file, indexer )

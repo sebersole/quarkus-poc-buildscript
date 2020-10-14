@@ -3,9 +3,12 @@ package com.github.sebersole.gradle.quarkus;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
+import org.gradle.api.plugins.JavaLibraryPlugin;
 
 import com.github.sebersole.gradle.quarkus.extension.ExtensionService;
 import com.github.sebersole.gradle.quarkus.extension.ResolvedExtension;
+import com.github.sebersole.gradle.quarkus.jandex.IndexingTask;
+import com.github.sebersole.gradle.quarkus.service.Services;
 
 /**
  * @author Steve Ebersole
@@ -28,9 +31,12 @@ public class QuarkusPlugin implements Plugin<Project> {
 
 	@Override
 	public void apply(Project project) {
+		project.getPlugins().apply( JavaLibraryPlugin.class );
+
 		dsl = project.getExtensions().create( "quarkus", QuarkusSpec.class, project );
 		services = new Services( dsl, project );
 
+		final IndexingTask indexingTask = IndexingTask.apply( dsl, services, project );
 		final ShowQuarkusExtensionsTask showExtensionsTask = project.getTasks().create( ShowQuarkusExtensionsTask.DSL_NAME, ShowQuarkusExtensionsTask.class );
 		final ShowQuarkusDependenciesTask showDependenciesTask = project.getTasks().create( ShowQuarkusDependenciesTask.DSL_NAME, ShowQuarkusDependenciesTask.class );
 
@@ -56,9 +62,5 @@ public class QuarkusPlugin implements Plugin<Project> {
 					}
 				}
 		);
-
-		project.afterEvaluate( p -> services.prepareForConfiguration() );
-
-		project.getGradle().getTaskGraph().whenReady( graph -> services.prepareForProcessing() );
 	}
 }

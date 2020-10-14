@@ -7,7 +7,7 @@ import org.jboss.jandex.Index;
 import static com.github.sebersole.gradle.quarkus.jandex.JandexHelper.resolveIndexFromArchive;
 
 /**
- * IndexCreator implementation for external dependencies (jar files)
+ * IndexCreator for external dependencies (jar files)
  */
 public class ExternalDependencyIndexCreator implements IndexCreator {
 	private final JarFile artifactFile;

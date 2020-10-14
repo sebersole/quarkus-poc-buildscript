@@ -22,6 +22,7 @@ public class ProjectInfo implements ModuleVersionIdentifierAccess {
 
 		final JavaPluginConvention javaPluginConvention = project.getConvention().findPlugin( JavaPluginConvention.class );
 		if ( javaPluginConvention == null ) {
+			project.getLogger().warn( "Quarkus plugin applied to non-JVM project" );
 			mainSourceSet = null;
 		}
 		else {
@@ -44,5 +45,15 @@ public class ProjectInfo implements ModuleVersionIdentifierAccess {
 
 	public SourceSet getMainSourceSet() {
 		return mainSourceSet;
+	}
+
+	@Override
+	public String toString() {
+		return String.format(
+				"ProjectInfo(id: `%s`, path: `%s`, java?: %s",
+				identifier.groupArtifactVersion(),
+				project.getPath(),
+				mainSourceSet != null
+		);
 	}
 }

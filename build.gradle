@@ -49,16 +49,6 @@ dependencies {
     testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:${project.junit5Version}"
 }
 
-tasks.test {
-    useJUnitPlatform()
-}
-
-sourceSets {
-    test {
-        resources.srcDirs += 'src/test/projects'
-    }
-}
-
 gradlePlugin {
     plugins {
         quarkusPlugin {
@@ -86,9 +76,37 @@ pluginBundle {
     }
 }
 
+tasks.test {
+    useJUnitPlatform()
+}
+
+sourceSets {
+    test {
+        resources.srcDirs += 'src/test/projects'
+    }
+}
+
+
+// for publishing snapshots
+
 if ( version.toString().endsWith( '-SNAPSHOT' ) ) {
     tasks.publishPlugins.enabled = false
 }
 else {
     tasks.publish.enabled = false
+}
+
+publishing {
+    publications {
+        publishedArtifacts( MavenPublication ) {
+            from components.java
+        }
+    }
+
+    repositories {
+        maven {
+            name 'jboss-snapshots-repository'
+            url 'https://repository.jboss.org/nexus/content/repositories/snapshots'
+        }
+    }
 }

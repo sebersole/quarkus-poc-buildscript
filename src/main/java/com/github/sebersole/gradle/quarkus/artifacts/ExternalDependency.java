@@ -18,7 +18,6 @@ import com.github.sebersole.gradle.quarkus.jandex.IndexCreator;
  */
 public class ExternalDependency implements ResolvedDependency {
 	private final ModuleVersionIdentifier identifier;
-	private final ResolvedArtifact artifact;
 
 	private final Properties extensionProperties;
 	private final IndexCreator indexCreator;
@@ -29,7 +28,6 @@ public class ExternalDependency implements ResolvedDependency {
 		assert identifier.getVersion() != null;
 
 		this.identifier = identifier;
-		this.artifact = artifact;
 
 		final JarFile jarFileReference = createJarFileReference( artifact );
 		this.extensionProperties = extractExtensionProperties( jarFileReference );
@@ -38,10 +36,6 @@ public class ExternalDependency implements ResolvedDependency {
 
 	public ModuleVersionIdentifier getIdentifier() {
 		return identifier;
-	}
-
-	public ResolvedArtifact getArtifact() {
-		return artifact;
 	}
 
 	public Properties getExtensionProperties() {

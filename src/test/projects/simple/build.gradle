@@ -24,12 +24,15 @@ repositories {
 }
 
 quarkus {
-    hibernateOrm {
+    dataSources {
         databaseKind = 'derby'
     }
     jpa {
         persistenceUnits {
-            // todo : add some tests
+            first {
+            }
+            second {
+            }
         }
     }
 }

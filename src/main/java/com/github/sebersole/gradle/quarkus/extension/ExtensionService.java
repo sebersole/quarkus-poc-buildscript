@@ -13,7 +13,8 @@ import org.gradle.api.Project;
 import com.github.sebersole.gradle.quarkus.Helper;
 import com.github.sebersole.gradle.quarkus.Logging;
 import com.github.sebersole.gradle.quarkus.QuarkusSpec;
-import com.github.sebersole.gradle.quarkus.Services;
+import com.github.sebersole.gradle.quarkus.service.Service;
+import com.github.sebersole.gradle.quarkus.service.Services;
 import com.github.sebersole.gradle.quarkus.artifacts.ModuleIdentifier;
 import com.github.sebersole.gradle.quarkus.artifacts.ModuleVersionIdentifier;
 import com.github.sebersole.gradle.quarkus.artifacts.ResolvedDependency;
@@ -26,7 +27,7 @@ import static com.github.sebersole.gradle.quarkus.Helper.DEPLOYMENT_ARTIFACT_KEY
 /**
  * Service for handling Quarkus extensions
  */
-public class ExtensionService {
+public class ExtensionService implements Service<ExtensionService> {
 	private final Services services;
 	private final QuarkusSpec quarkusDsl;
 	private final Project gradleProject;
@@ -45,7 +46,7 @@ public class ExtensionService {
 		Logging.LOGGER.trace( "ExtensionService#afterServicesInit" );
 	}
 
-	public void prepareForUse() {
+	public void afterProjectEvaluation() {
 		Logging.LOGGER.trace( "ExtensionService#prepareForUse" );
 	}
 
@@ -133,7 +134,7 @@ public class ExtensionService {
 		return availableExtensions;
 	}
 
-	public void prepareForProcessing() {
+	public void afterTaskGraphReady() {
 		if ( resolvedExtensionsByModule != null ) {
 			throw new IllegalStateException( "Already resolved" );
 		}
@@ -190,6 +191,11 @@ public class ExtensionService {
 		final ResolvedExtension created = creator.apply( identifier );
 		resolvedExtensionsByModule.put( identifier, created );
 		return created;
+	}
+
+	@Override
+	public Class<ExtensionService> getRole() {
+		return ExtensionService.class;
 	}
 
 	private static class ExtensionResolutionProcess implements ExtensionResolutionState {

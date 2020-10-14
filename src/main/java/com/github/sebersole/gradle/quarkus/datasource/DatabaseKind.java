@@ -1,4 +1,4 @@
-package com.github.sebersole.gradle.quarkus.orm;
+package com.github.sebersole.gradle.quarkus.datasource;
 
 import java.util.Locale;
 
@@ -59,6 +59,11 @@ public enum DatabaseKind implements ModuleIdentifier {
 		}
 
 		return null;
+	}
+
+	public static DatabaseKind fromProperty(String name) {
+		final String kindName = name.substring( name.lastIndexOf( '.' ) + 1 );
+		return fromName( name );
 	}
 
 	public static DatabaseKind extractFromUrl(String url) {

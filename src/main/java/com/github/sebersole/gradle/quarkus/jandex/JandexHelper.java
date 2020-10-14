@@ -34,13 +34,14 @@ import static com.github.sebersole.gradle.quarkus.Helper.JANDEX_INDEX_FILE_PATH;
  */
 public class JandexHelper {
 	public static final String JANDEX = "jandex";
+	public static final String INDEX_FILE_SUFFIXER = ".idx";
 
 	private JandexHelper() {
 		// disallow direct instantiation
 	}
 
 	public static String indexFileName(ResolvedDependency dependency) {
-		return indexFileNameBase( dependency ) + ".idx";
+		return indexFileNameBase( dependency ) + INDEX_FILE_SUFFIXER;
 	}
 
 	private static String indexFileNameBase(ResolvedDependency dependency) {
@@ -49,7 +50,7 @@ public class JandexHelper {
 		}
 		else if ( dependency instanceof ExternalDependency ) {
 			final ExternalDependency externalDependency = (ExternalDependency) dependency;
-			return dependency.getGroupName() + "___" + dependency.getArtifactName() + "___" + externalDependency.getArtifact().getModuleVersion().getId().getVersion();
+			return dependency.getGroupName() + "___" + dependency.getArtifactName() + "___" + externalDependency.getIdentifier().getVersion();
 		}
 
 		throw new UnsupportedOperationException();
@@ -137,6 +138,9 @@ public class JandexHelper {
 	 * Read a Jandex index file and return the "serialized" index
 	 */
 	public static Index readJandexIndex(File jandexFile) {
+		assert jandexFile.exists();
+		assert jandexFile.isFile();
+
 		try ( final InputStream inputStream = new FileInputStream( jandexFile ) ) {
 			return readJandexIndex( () -> inputStream );
 		}

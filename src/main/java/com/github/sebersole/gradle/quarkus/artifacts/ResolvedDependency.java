@@ -2,8 +2,6 @@ package com.github.sebersole.gradle.quarkus.artifacts;
 
 import java.util.Properties;
 
-import org.gradle.api.artifacts.ResolvedArtifact;
-
 import com.github.sebersole.gradle.quarkus.jandex.IndexCreator;
 
 /**
@@ -21,7 +19,6 @@ public interface ResolvedDependency extends ModuleVersionIdentifierAccess {
 	}
 
 	ModuleVersionIdentifier getIdentifier();
-	ResolvedArtifact getArtifact();
 
 	Properties getExtensionProperties();
 	IndexCreator getIndexCreator();
