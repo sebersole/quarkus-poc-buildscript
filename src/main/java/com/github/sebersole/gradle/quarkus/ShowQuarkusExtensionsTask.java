@@ -24,7 +24,7 @@ public class ShowQuarkusExtensionsTask extends DefaultTask {
 		final ExtensionService extensionService = quarkusPlugin.getServices().getExtensionService();
 
 		project.getLogger().lifecycle( Helper.REPORT_BANNER_LINE );
-		project.getLogger().lifecycle( "Available Extensions" );
+		project.getLogger().lifecycle( "Available Quarkus Extensions" );
 		project.getLogger().lifecycle( Helper.REPORT_BANNER_LINE );
 
 		extensionService.getAvailableExtensions().forEach(

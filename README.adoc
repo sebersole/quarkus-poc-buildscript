@@ -1,3 +1,9 @@
+# Quarkus Gradle plugin (poc)
+
+Proof of concept for different (more Gradle-y) approach for the Quarkus Gradle plugin
+
+## Example Script
+
 ```
 buildscript {
     repositories {
@@ -27,12 +33,152 @@ quarkus {
     jpa {
         persistenceUnits {
             create( "pu-abc" ) {
-                // implicitly picks up the project's sources, but
-                // other dependencies can be named here as well.
-                // e.g.
+                // implicitly picks up the project's sources (if Java project),
+                // but other dependencies can be named here as well. e.g.:
                 include 'com.acme:our-data-model:x.y.z'
             }
         }
     }
 }
+```
+
+## Some example outputs
+
+
+### showQuarkusExtensions Task
+
+```
+$ gradlew clean showQuarkusExtensions
+
+...
+
+> Task :showQuarkusExtensions
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Available Extensions
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  > io.quarkus:quarkus-agroal:1.7.1.Final
+  > io.quarkus:quarkus-arc:1.7.1.Final
+  > io.quarkus:quarkus-caffeine:1.7.1.Final
+  > io.quarkus:quarkus-core:1.7.1.Final
+  > io.quarkus:quarkus-datasource:1.7.1.Final
+  > io.quarkus:quarkus-hibernate-orm:1.7.1.Final
+  > io.quarkus:quarkus-jdbc-derby:1.7.1.Final
+  > io.quarkus:quarkus-mutiny:1.7.1.Final
+  > io.quarkus:quarkus-narayana-jta:1.7.1.Final
+  > io.quarkus:quarkus-smallrye-context-propagation:1.7.1.Final
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Registered DSL Extensions
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  > dataSources - dataSources: [ {default}: `DERBY``,  ]
+  > jpa - persistenceUnits: [ pu-abc,  ]
+  > hibernateOrm - { }
+
+BUILD SUCCESSFUL in 1s
+2 actionable tasks: 1 executed, 1 up-to-date
+```
+
+
+### showQuarkusDependencies Task
+
+```
+$ gradlew clean showQuarkusDependencies
+
+...
+
+> Task :showQuarkusDependencies
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Combined Quarkus dependencies
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  > quarkusRuntime
+    > Artifacts
+      > io.quarkus:quarkus-bom:1.7.1.Final
+      > io.quarkus:quarkus-narayana-jta:1.7.1.Final
+      > io.quarkus:quarkus-smallrye-context-propagation:1.7.1.Final
+      > io.quarkus:quarkus-caffeine:1.7.1.Final
+      ...
+    > Files
+      > quarkus-hibernate-orm-1.7.1.Final.jar
+      > quarkus-agroal-1.7.1.Final.jar
+      > quarkus-datasource-1.7.1.Final.jar
+      > quarkus-narayana-jta-1.7.1.Final.jar
+      > quarkus-mutiny-1.7.1.Final.jar
+      > quarkus-smallrye-context-propagation-1.7.1.Final.jar
+      > quarkus-arc-1.7.1.Final.jar
+      > quarkus-caffeine-1.7.1.Final.jar
+      > quarkus-core-1.7.1.Final.jar
+      > quarkus-local-cache-0.1.0.jar
+      > hibernate-core-5.4.19.Final.jar
+      > hibernate-graalvm-5.4.19.Final.jar
+      ...
+  > quarkusDeployment
+    > Artifacts
+      > io.quarkus:quarkus-bom:1.7.1.Final
+      > io.quarkus:quarkus-narayana-jta-deployment:1.7.1.Final
+      ...
+    > Files
+      > quarkus-hibernate-orm-deployment-1.7.1.Final.jar
+      > quarkus-agroal-deployment-1.7.1.Final.jar
+      ...
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Dependencies for the `quarkus-agroal` extension
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  > quarkus-agroalRuntime
+    > Artifacts
+      > io.quarkus:quarkus-agroal:1.7.1.Final
+      > io.quarkus:quarkus-bom:1.7.1.Final
+    > Files
+      > quarkus-agroal-1.7.1.Final.jar
+      > quarkus-datasource-1.7.1.Final.jar
+      ...
+...
+
+BUILD SUCCESSFUL in 1s
+2 actionable tasks: 1 executed, 1 up-to-date
+
+```
+
+
+### showQuarkusJpa Task
+
+```
+$ gradlew clean showQuarkusJpa
+
+...
+
+> Task :showQuarkusJpa
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Quarkus JPA persistence-units
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  > pu-abc
+    > Managed classes
+      > com.redhat.sebersole.quarkus.poc.consumer.simple.AnotherEntity
+      > com.redhat.sebersole.quarkus.poc.consumer.simple.TheEntity
+
+BUILD SUCCESSFUL in 4s
+5 actionable tasks: 5 executed
+
+...
+
+-- no clean = leverage Gradle incrmental build
+--      notice the number of "actions" executed
+--      and the corresponding time spent
+$ gradlew showQuarkusJpa
+
+...
+
+> Task :resolveQuarkusJpa
+
+> Task :showQuarkusJpa
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Quarkus JPA persistence-units
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  > pu-abc
+    > Managed classes
+      > com.redhat.sebersole.quarkus.poc.consumer.simple.TheEntity
+      > com.redhat.sebersole.quarkus.poc.consumer.simple.AnotherEntity
+
+BUILD SUCCESSFUL in 1s
+5 actionable tasks: 3 executed, 2 up-to-date
+
 ```
