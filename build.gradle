@@ -1,8 +1,8 @@
 plugins {
     id 'java'
     id 'java-gradle-plugin'
-
     id 'com.gradle.plugin-publish' version '0.12.0'
+    id 'com.github.sebersole.testkit-junit5' version '0.9.6'
 
     // for publishing snapshots
     id 'maven-publish'
@@ -32,6 +32,10 @@ configurations {
     implementation.extendsFrom( quarkusPlatforms )
     testImplementation.extendsFrom( quarkusPlatforms )
     testRuntimeOnly.extendsFrom( quarkusPlatforms )
+}
+
+testKit {
+    implicitProject = 'simple'
 }
 
 dependencies {
@@ -82,12 +86,6 @@ javadoc {
 
 tasks.test {
     useJUnitPlatform()
-}
-
-sourceSets {
-    test {
-        resources.srcDirs += 'src/test/projects'
-    }
 }
 
 

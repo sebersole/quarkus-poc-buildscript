@@ -16,11 +16,15 @@ buildscript {
 
 plugins {
     id 'java'
-    id 'sebersole.quarkus.plugin-poc-buildscript'
+    id 'sebersole.quarkus.plugin-poc'
 }
 
 repositories {
     mavenCentral()
+}
+
+dependencies {
+    implementation 'javax.persistence:javax.persistence-api:2.2'
 }
 
 quarkus {

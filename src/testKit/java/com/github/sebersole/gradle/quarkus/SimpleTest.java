@@ -11,6 +11,8 @@ import com.github.sebersole.gradle.quarkus.jandex.IndexingTask;
 import com.github.sebersole.gradle.quarkus.jpa.ResolveJpaTask;
 import com.github.sebersole.gradle.quarkus.jpa.ShowJpaTask;
 import com.github.sebersole.gradle.quarkus.orm.HibernateOrmExtension;
+import com.github.sebersole.testkit.ProjectScope;
+import com.github.sebersole.testkit.TestKit;
 
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.is;
@@ -20,15 +22,12 @@ import static org.hamcrest.MatcherAssert.assertThat;
 /**
  * @author Steve Ebersole
  */
+@TestKit
 public class SimpleTest {
 
 	@Test
-	public void testShowExtensions() {
-		final GradleRunner gradleRunner = TestHelper.createGradleRunner(
-				"simple",
-				ShowQuarkusExtensionsTask.DSL_NAME
-		);
-
+	public void testShowExtensions(ProjectScope scope) {
+		final GradleRunner gradleRunner = scope.createGradleRunner( ShowQuarkusExtensionsTask.DSL_NAME );
 		final BuildResult buildResult = gradleRunner.build();
 
 		final BuildTask taskResult = buildResult.task( ":" + ShowQuarkusExtensionsTask.DSL_NAME );
@@ -40,11 +39,8 @@ public class SimpleTest {
 	}
 
 	@Test
-	public void testShowDependencies() {
-		final GradleRunner gradleRunner = TestHelper.createGradleRunner(
-				"simple",
-				ShowQuarkusDependenciesTask.DSL_NAME
-		);
+	public void testShowDependencies(ProjectScope scope) {
+		final GradleRunner gradleRunner = scope.createGradleRunner( ShowQuarkusDependenciesTask.DSL_NAME );
 
 		final BuildResult buildResult = gradleRunner.build();
 
@@ -54,13 +50,10 @@ public class SimpleTest {
 	}
 
 	@Test
-	public void testShowLimitedDependencies() {
+	public void testShowLimitedDependencies(ProjectScope scope) {
 		final String taskName = ShowQuarkusDependenciesTask.DSL_NAME + "_" + HibernateOrmExtension.DSL_NAME;
 
-		final GradleRunner gradleRunner = TestHelper.createGradleRunner(
-				"simple",
-				taskName
-		);
+		final GradleRunner gradleRunner = scope.createGradleRunner( taskName );
 
 		final BuildResult buildResult = gradleRunner.build();
 
@@ -70,14 +63,13 @@ public class SimpleTest {
 	}
 
 	@Test
-	public void testIndexingTask() {
+	public void testIndexingTask(ProjectScope scope) {
 		final String taskName = IndexingTask.DSL_NAME;
 
-		final GradleRunner gradleRunner = TestHelper.createGradleRunner(
-				"simple",
+		final GradleRunner gradleRunner = scope.createGradleRunner(
 				cleanTaskRuleName( IndexingTask.DSL_NAME ),
 				cleanTaskRuleName( ShowJpaTask.DSL_NAME ),
-				"compileMainJava",
+				"compileJava",
 				taskName
 		);
 
@@ -89,10 +81,9 @@ public class SimpleTest {
 	}
 
 	@Test
-	public void testShowJpa() {
+	public void testShowJpa(ProjectScope scope) {
 
-		final GradleRunner gradleRunner = TestHelper.createGradleRunner(
-				"simple",
+		final GradleRunner gradleRunner = scope.createGradleRunner(
 				cleanTaskRuleName( IndexingTask.DSL_NAME ),
 				cleanTaskRuleName( ShowJpaTask.DSL_NAME ),
 				IndexingTask.DSL_NAME,
